@@ -1,0 +1,90 @@
+﻿create database HRDB;
+use HRDB;
+
+create table Department(id int primary key identity,name varchar(max));
+
+create table Employee(id int primary key identity,
+name varchar(max),email varchar(max),
+gender varchar(20),
+mobile varchar(15),
+department_id int foreign key references Department(id));
+
+create proc SP_Department
+@action varchar(20),
+@id int=0,
+@name varchar(max)=null
+as
+begin
+if(@action='CREATE')
+begin
+insert into Department(name)values(@name)
+select 1 as result
+end
+else if(@action='DELETE')
+begin
+delete from Department where id=@id
+select 1 as result
+end
+else if(@action='SELECT')
+begin 
+select * from Department
+end
+else if(@action='UPDATE')
+begin
+update Department set name=@name where id=@id
+select 1 as result
+end
+end
+
+exec SP_Department 'SELECT'
+exec SP_Department 'CREATE',0,'HR'
+exec SP_Department 'CREATE',0,'Software Developer'
+exec SP_Department 'CREATE',0,'Software Tester'
+exec SP_Department 'CREATE',0,'Trainer'
+exec SP_Department 'CREATE',0,'Sales'
+
+create proc SP_Employee
+@action varchar(20),
+@id int=0,
+@ename varchar(max)=null,
+@email varchar(max)=null,
+@gender varchar(10)=null,
+@mobile varchar(15)=null,
+@dept_id int=0
+as
+begin
+if(@action='CREATE')
+begin
+insert into Employee(name,email,gender,mobile,department_id)values(@ename,@email,@gender,@mobile,@dept_id)
+select 1 as result
+end
+else if(@action='DELETE')
+begin
+delete from Employee where id=@id
+select 1 as result
+end
+else if(@action='SELECT')
+begin 
+select * from Employee
+end
+else if(@action='SELECT-JOIN')
+begin 
+select e.id,e.name,e.email,e.gender,e.mobile,d.name from Department d 
+INNER JOIN
+Employee e
+ON
+d.id=e.id
+end
+else if(@action='UPDATE')
+begin
+update Employee set name=@ename,email=@email,gender=@gender,mobile=@mobile where id=@id
+select 1 as result
+end
+end
+
+exec SP_Employee 'SELECT'
+exec SP_Employee 'CREATE',0,'Mona','mona12@gmail.com','Female','56678787',1
+exec SP_Employee 'CREATE',0,'Reena','reena34@gmail.com','Female','2348787',2
+exec SP_Employee 'CREATE',0,'Pinku','pinku@gmail.com','Female','12345787',3
+exec SP_Employee 'CREATE',0,'Ravi','mona12@gmail.com','Male','45678787',4
+exec SP_Employee 'CREATE',0,'Ram','mona12@gmail.com','Male','12378787',5
